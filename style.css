@@ -1,159 +1,136 @@
-/* Переменные для темной темы */
-:root {
-    --bg-dark: #121212;
-    --bg-card: #1e1e1e;
-    --text-light: #ffffff;
-    --text-secondary: #aaaaaa;
-    --color-primary: #00bcd4; /* Яркий акцентный цвет (бирюзовый) */
-    --color-accent: #2c9c7f; /* Цвет кнопки "Отправить" */
-    --color-button-secondary: #333333;
-    --radius-large: 12px;
-    --radius-small: 6px;
-}
-
-/* Глобальные стили и сброс */
+/* --- ГЛОБАЛЬНЫЕ СТИЛИ --- */
 body {
+    font-family: 'Arial', sans-serif;
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #242424; /* Светло-темный фон для контраста */
-    color: var(--text-light);
-    height: 100vh;
+    padding: 0;
+    color: #333;
+    background-color: #f0f2f5; /* Светло-серый фон, как в мессенджерах */
 }
 
-/* Стили для центрирования (login.html и register.html) */
+/* Стили для центрирования на страницах логина/регистрации */
 .centered-page {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
+    background-color: #f0f2f5;
 }
 
-/* Карточка входа/регистрации */
+/* --- СТИЛИ КАРТОЧЕК (Логин/Регистрация) --- */
 .auth-card {
-    background: var(--bg-card);
-    padding: 30px;
-    border-radius: var(--radius-large);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 350px;
     text-align: center;
-    width: 300px; 
 }
 
 .auth-card h2 {
-    color: var(--color-primary);
-    margin-top: 0;
+    color: #007bff;
     margin-bottom: 25px;
+    font-size: 24px;
 }
 
-#email-input, #password-input, #username-input {
+.auth-card input {
+    width: 100%;
     padding: 12px;
-    margin: 10px 0;
-    width: 90%;
-    border: 1px solid #333;
-    border-radius: var(--radius-small);
-    font-size: 16px;
-    background-color: #2a2a2a;
-    color: var(--text-light);
-    display: block;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
     box-sizing: border-box;
-    margin-left: auto;
-    margin-right: auto;
-    outline: none;
+    font-size: 16px;
     transition: border-color 0.3s;
 }
 
-#email-input:focus, #password-input:focus, #username-input:focus {
-    border-color: var(--color-primary);
+.auth-card input:focus {
+    border-color: #007bff;
+    outline: none;
 }
 
 .auth-card button {
-    padding: 12px 20px;
-    background-color: var(--color-primary);
-    color: var(--bg-dark); /* Черный текст на акцентном фоне */
-    font-weight: bold;
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
     border: none;
-    border-radius: var(--radius-small);
-    cursor: pointer;
+    border-radius: 8px;
     font-size: 16px;
+    cursor: pointer;
     transition: background-color 0.3s;
-    margin-top: 15px;
-    width: 90%;
+    font-weight: bold;
 }
 
 .auth-card button:hover {
-    background-color: #00a4b3;
+    background-color: #0056b3;
 }
 
 .separator {
-    color: var(--text-secondary);
-    font-size: 12px;
-    margin: 20px 0 10px;
+    color: #aaa;
+    margin: 20px 0;
 }
 
 .register-link-button {
     display: block;
-    padding: 12px 20px;
-    background-color: var(--color-button-secondary);
-    color: var(--text-light);
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745;
+    color: white;
     text-decoration: none;
-    border-radius: var(--radius-small);
+    border-radius: 8px;
     font-size: 16px;
     transition: background-color 0.3s;
-    width: 90%;
     box-sizing: border-box;
-    margin: 10px auto 0;
+    font-weight: bold;
 }
 
 .register-link-button:hover {
-    background-color: #444;
+    background-color: #1e7e34;
 }
 
-/* --- Стили для чата (chat.html) --- */
+/* --- СТИЛИ ЧАТА (chat.html) --- */
 #chat-app {
     display: flex;
-    width: 100%;
-    max-width: 1200px;
-    height: 98vh; /* Чуть меньше для видимости фона */
-    margin: 1vh auto;
-    background: var(--bg-dark);
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
-    border-radius: var(--radius-large);
-    overflow: hidden;
+    height: 100vh;
+    background-color: #fff;
 }
 
-/* Левая боковая панель (Меню чатов) */
+/* --- САЙДБАР (Список чатов) --- */
 #sidebar {
-    width: 250px;
-    background-color: #1a1a1a; 
+    width: 280px;
+    background-color: #2c3e50; /* Темный фон для сайдбара */
+    color: white;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid #282828;
+    border-right: 1px solid #1f2a35;
 }
 
 .sidebar-header {
-    padding: 15px 20px;
-    font-size: 18px;
+    padding: 20px;
+    border-bottom: 1px solid #1f2a35;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #282828;
 }
 
 .sidebar-header h3 {
     margin: 0;
-    color: var(--color-primary);
+    font-size: 18px;
 }
 
 .logout-button {
-    background: var(--color-button-secondary);
+    background-color: #e74c3c;
+    color: white;
     border: none;
-    color: var(--text-light);
-    padding: 8px 12px;
-    border-radius: var(--radius-small);
+    padding: 8px 15px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
-    transition: background-color 0.2s;
+    transition: background-color 0.3s;
 }
+
 .logout-button:hover {
-    background-color: #444;
+    background-color: #c0392b;
 }
 
 #chat-list {
@@ -167,118 +144,135 @@ body {
 #chat-list li {
     padding: 15px 20px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.3s;
     border-left: 5px solid transparent;
 }
 
 #chat-list li:hover {
-    background-color: #222;
+    background-color: #34495e;
 }
 
 #chat-list li.active {
-    background-color: var(--bg-card); 
-    border-left: 5px solid var(--color-primary);
+    background-color: #34495e;
+    border-left-color: #007bff; /* Акцент для активной комнаты */
     font-weight: bold;
 }
 
-/* Главная область чата */
+/* --- ОСНОВНАЯ ОБЛАСТЬ ЧАТА --- */
 #main-chat {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    position: relative;
-    background-color: var(--bg-dark);
+    background-color: #f7f9fb; /* Очень светлый фон для области сообщений */
 }
 
-#current-room-name {
+#main-chat h2 {
     padding: 15px 20px;
     margin: 0;
-    background-color: var(--bg-card);
-    border-bottom: 1px solid #282828;
-    text-align: left;
     font-size: 20px;
-    color: var(--color-primary);
-    font-weight: 500;
+    border-bottom: 1px solid #eee;
+    background-color: #fff;
+    color: #007bff;
 }
 
 #messages-container {
     flex-grow: 1;
     padding: 20px;
     overflow-y: auto;
-    background-color: var(--bg-dark);
+    display: flex;
+    flex-direction: column;
 }
 
-/* Стили для сообщений */
+/* --- СТИЛИ СООБЩЕНИЯ --- */
 .message {
     margin-bottom: 15px;
     padding: 10px 15px;
-    border-radius: var(--radius-large);
-    max-width: 60%;
-    word-wrap: break-word;
-    background-color: var(--bg-card);
-    clear: both;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    float: left; /* Сообщения по умолчанию слева */
+    border-radius: 15px;
+    background-color: #fff;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    max-width: 70%;
+    align-self: flex-start; /* Сообщения по умолчанию слева */
+    position: relative; /* Для позиционирования кнопки удаления */
+    padding-right: 40px; /* Отступ для кнопки удаления */
+    line-height: 1.4;
 }
-
-/* Для сообщений, отправленных текущим пользователем */
-/* Примечание: Для реализации float: right нам понадобится JS, 
-   который будет добавлять класс 'my-message', если uid совпадает */
-/* Временно оставим все слева, как в вашем эскизе */
 
 .message .username {
     font-weight: bold;
     margin-right: 8px;
-    display: block;
-    font-size: 14px;
-    margin-bottom: 4px;
+    cursor: help; /* Курсор для подсказки с email */
 }
 
 .message .text {
+    word-wrap: break-word;
+    white-space: pre-wrap;
     display: block;
-    font-size: 16px;
-    line-height: 1.4;
 }
 
 .message .time {
     display: block;
-    font-size: 10px;
-    color: #555;
+    font-size: 11px;
+    color: #999;
     margin-top: 5px;
     text-align: right;
 }
 
-/* Область ввода */
+/* --- АДМИН-ЭЛЕМЕНТЫ (Кнопка удаления) --- */
+.delete-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    color: #ff4d4d; 
+    border: none;
+    cursor: pointer;
+    padding: 3px;
+    border-radius: 3px;
+    font-size: 16px;
+    line-height: 1;
+    font-weight: bold;
+    opacity: 0; /* Изначально скрыта */
+    transition: opacity 0.2s, background-color 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: #ffe8e8;
+}
+
+/* Показываем кнопку при наведении на все сообщение */
+.message:hover .delete-btn {
+    opacity: 1; 
+}
+
+/* --- ОБЛАСТЬ ВВОДА --- */
 #input-area {
-    padding: 15px;
-    border-top: 1px solid #282828;
     display: flex;
-    background-color: var(--bg-dark);
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    background-color: #fff;
 }
 
 #message-input {
     flex-grow: 1;
-    padding: 12px 18px;
-    border: none;
-    border-radius: var(--radius-large);
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
     margin-right: 10px;
     font-size: 16px;
-    background-color: var(--bg-card);
-    color: var(--text-light);
-    outline: none;
 }
 
 #input-area button {
     padding: 10px 20px;
-    background-color: var(--color-accent); /* Темный акцент */
-    color: var(--text-light);
+    background-color: #007bff;
+    color: white;
     border: none;
-    border-radius: var(--radius-large);
+    border-radius: 20px;
     cursor: pointer;
+    font-size: 16px;
     transition: background-color 0.3s;
-    font-weight: 600;
 }
 
 #input-area button:hover {
-    background-color: #24886e;
+    background-color: #0056b3;
 }
