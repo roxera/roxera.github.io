@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Чат | chat.roxera.xyz</title>
+    <title>Онлайн Чат</title>
     <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
@@ -42,16 +42,18 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="chat.js"></script>
     <script>
-        // Этот скрипт выполнится сразу при загрузке страницы chat.html
-        // Он проверит, авторизован ли пользователь, иначе перенаправит на login.html
+        // **ЛОГИКА СОХРАНЕНИЯ СЕССИИ ДЛЯ CHAT.HTML:**
+        // Если токена нет, перенаправляем на login.html.
         auth.onAuthStateChanged(user => {
             if (!user) {
                 window.location.href = 'login.html';
             } else {
-                // Если пользователь авторизован, загружаем его ник
+                // Если пользователь авторизован, загружаем его ник и запускаем чат
                 loadNicknameAndEnterChat(user);
             }
         });
+        window.sendMessage = sendMessage;
+        window.logoutUser = logoutUser;
     </script>
 </body>
 </html>
