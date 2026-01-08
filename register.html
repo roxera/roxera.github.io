@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация | chat.roxera.xyz</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body class="centered-page">
+    <div id="register-form" class="auth-card">
+        <h2>Регистрация нового пользователя</h2>
+        <input type="email" id="email-input" placeholder="Email (Логин)">
+        <input type="password" id="password-input" placeholder="Пароль">
+        <input type="text" id="username-input" placeholder="Имя пользователя (Ник, закрепляется!)">
+        
+        <button onclick="registerUser()">Зарегистрировать</button>
+        
+        <p class="separator">ИЛИ</p>
+        
+        <a href="login.html" class="register-link-button">Уже есть аккаунт? Войти</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="chat.js"></script>
+</body>
+</html>
