@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в Онлайн Чат</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body class="centered-page">
+    <div id="login-form" class="auth-card">
+        <h2>Вход в Чат</h2>
+        <input type="email" id="email-input" placeholder="Email (Логин)">
+        <input type="password" id="password-input" placeholder="Пароль">
+        
+        <button onclick="loginUser()">Войти</button>
+        
+        <p class="separator">ИЛИ</p>
+        
+        <a href="register.html" class="register-link-button">Зарегистрироваться</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="chat.js"></script>
+</body>
+</html>
