@@ -2,12 +2,12 @@
 // 1. КОНФИГУРАЦИЯ FIREBASE: ЗАМЕНИТЕ ЭТИ ЗНАЧЕНИЯ СВОИМИ!
 // =======================================================
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY", 
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyD6QPH3kc6dtA6W1po2HQ4Z30V2PS6tNIc",
+  authDomain: "my-chat-5d859.firebaseapp.com",
+  projectId: "my-chat-5d859",
+  storageBucket: "my-chat-5d859.firebasestorage.app",
+  messagingSenderId: "11785440548",
+  appId: "1:11785440548:web:932bfcd2c1756b3741b7b1"
 };
 
 // Инициализация Firebase, Firestore и Auth
