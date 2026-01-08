@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат | chat.roxera.xyz</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+
+    <div id="chat-app"> 
+        
+        <div id="sidebar">
+            <div class="sidebar-header">
+                <h3>МЕНЮ ЧАТОВ</h3>
+                <button class="logout-button" onclick="logoutUser()">Выйти</button>
+            </div>
+            <ul id="chat-list">
+                <li data-room="RU Main" class="active">RU Main</li>
+                <li data-room="ENG Main">ENG Main</li>
+                <li data-room="RU 2">RU 2</li>
+                <li data-room="ENG 2">ENG 2</li>
+                <li data-room="Alfa">Alfa</li>
+                <li data-room="Beta">Beta</li>
+                <li data-room="Gamma">Gamma</li>
+            </ul>
+        </div>
+        
+        <div id="main-chat">
+            <h2 id="current-room-name">RU Main</h2>
+            <div id="messages-container">
+                </div>
+            <div id="input-area">
+                <input type="text" id="message-input" placeholder="Напишите сообщение..." onkeydown="if (event.keyCode === 13) sendMessage()">
+                <button onclick="sendMessage()">Отправить</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="chat.js"></script>
+    <script>
+        // Этот скрипт выполнится сразу при загрузке страницы chat.html
+        // Он проверит, авторизован ли пользователь, иначе перенаправит на login.html
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                // Если пользователь авторизован, загружаем его ник
+                loadNicknameAndEnterChat(user);
+            }
+        });
+    </script>
+</body>
+</html>
