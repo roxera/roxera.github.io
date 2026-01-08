@@ -1,3 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-  <meta http-equiv="refresh" content="0; url=https://chat.roxera.xyz/login.html">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузка Чата</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        h2 { color: #007bff; }
+    </style>
 </head>
+<body>
+
+    <h2>Проверка сессии...</h2> 
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="chat.js"></script>
+    <script>
+        // Это функция-заглушка, чтобы избежать ошибки при вызове из chat.js
+        // Нам нужна только auth.onAuthStateChanged
+        function loadNicknameAndEnterChat(user) {
+            if (user) {
+                // Если сессия активна, идем в чат
+                window.location.href = 'chat.html';
+            } else {
+                // Если сессии нет, идем на страницу входа
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Главная проверка: она сработает очень быстро.
+        auth.onAuthStateChanged(loadNicknameAndEnterChat);
+    </script>
+</body>
+</html>
