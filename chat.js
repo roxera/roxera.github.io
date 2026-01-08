@@ -26,9 +26,6 @@ let unsubscribe = null;
 // 2. ЛОГИКА АУТЕНТИФИКАЦИИ И ЗАКРЕПЛЕНИЯ НИКА
 // ----------------------------------------
 
-/**
- * Генерирует уникальный цвет на основе имени пользователя.
- */
 function generateColor(username) {
     let hash = 0;
     for (let i = 0; i < username.length; i++) {
@@ -39,59 +36,60 @@ function generateColor(username) {
 }
 
 /**
- * Загружает сохраненный ник из Firestore и запускает интерфейс чата (chat.html).
+ * Загружает сохраненный ник из Firestore и запускает интерфейс чата.
+ * Используется для автологина (сохранения сессии).
  */
 function loadNicknameAndEnterChat(user) {
     db.collection('users').doc(user.uid).get()
         .then(doc => {
             if (doc.exists && doc.data().username) {
-                // Ник найден, перенаправляем на чат-страницу
+                // Если мы на странице входа/регистрации, перенаправляем на чат
+                if (window.location.pathname.indexOf('chat.html') === -1) {
+                    window.location.href = 'chat.html';
+                    return;
+                }
+                
+                // Если мы уже на chat.html, инициализируем данные
                 currentUID = user.uid;
                 currentUsername = doc.data().username;
                 currentUserColor = doc.data().color;
                 
-                // Переходим на страницу чата
-                if (window.location.pathname.indexOf('chat.html') === -1) {
-                    window.location.href = 'chat.html';
-                }
-                
-                // Если мы уже на chat.html, запускаем чат
+                // Запускаем чат
                 if (document.getElementById('chat-app')) {
                     listenForMessages(currentRoom);
                     initChatSwitching();
                 }
             } else {
-                // Должны быть данные, если регистрация прошла успешно.
-                alert('Ошибка: Данные пользователя не найдены. Войдите снова.');
+                // Это может произойти, если пользователь удалил ник из базы вручную.
+                // Перенаправляем на логин.
                 auth.signOut();
-                window.location.href = 'login.html';
+                if (window.location.pathname.indexOf('login.html') === -1) {
+                    window.location.href = 'login.html';
+                }
             }
         })
         .catch(error => {
             console.error("Ошибка загрузки данных пользователя:", error);
             auth.signOut();
-            window.location.href = 'login.html';
+            if (window.location.pathname.indexOf('login.html') === -1) {
+                window.location.href = 'login.html';
+            }
         });
 }
 
 /**
  * Проверяет, занят ли ник в базе данных.
- * (Реализация требования: имя должно быть при регистрации занятым).
  */
 async function checkNicknameAvailability(username) {
-    // Делаем запрос в Firestore, ищем документ, где username равен введенному
     const usersRef = db.collection('users');
     const snapshot = await usersRef.where('username', '==', username).get();
-    
-    // Если размер snapshot > 0, значит, такой ник уже существует
     return snapshot.size > 0;
 }
 
 /**
- * Обрабатывает регистрацию нового пользователя и сохраняет ник.
+ * Обрабатывает регистрацию нового пользователя, проверяет уникальность ника.
  */
 async function registerUser() {
-    // Эта функция вызывается только на странице register.html
     const email = document.getElementById('email-input').value;
     const password = document.getElementById('password-input').value;
     const username = document.getElementById('username-input').value.trim();
@@ -126,26 +124,30 @@ async function registerUser() {
         });
         
         alert('Регистрация успешна! Перенаправление на страницу входа.');
+        
+        // Автоматически выходим, чтобы пользователь вошел через логин (если нужно)
+        // Но чтобы сохранить сессию, можно сразу перенаправить на чат:
+        // loadNicknameAndEnterChat(user); 
+        // В данном случае, лучше явно выйти, чтобы приучить пользователя к логину:
+        auth.signOut();
         window.location.href = 'login.html';
 
     } catch (error) {
-        // Обработка ошибок Firebase (например, неверный формат email)
         alert('Ошибка регистрации: ' + error.message);
         console.error(error);
     }
 }
 
 /**
- * Обрабатывает вход существующего пользователя. Ник загружается автоматически.
+ * Обрабатывает вход существующего пользователя.
  */
 function loginUser() {
-    // Эта функция вызывается только на странице login.html
     const email = document.getElementById('email-input').value;
     const password = document.getElementById('password-input').value;
 
     auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
-            // Успешный вход. Загружаем сохраненный ник и перенаправляем на chat.html.
+            // Успешный вход. loadNicknameAndEnterChat позаботится о перенаправлении.
             loadNicknameAndEnterChat(userCredential.user);
         })
         .catch((error) => {
@@ -155,12 +157,12 @@ function loginUser() {
 }
 
 /**
- * Выход из системы.
+ * Выход из системы (удаление токена сессии).
  */
 function logoutUser() {
     auth.signOut()
         .then(() => {
-            alert('Вы успешно вышли из системы.');
+            // Успешно вышли, перенаправляем на страницу входа
             window.location.href = 'login.html';
         })
         .catch((error) => {
@@ -266,8 +268,9 @@ function switchRoom(newRoom) {
     listenForMessages(currentRoom);
 }
 
-// Привязываем функции к глобальному объекту window
+// Привязываем функции к глобальному объекту window (для вызова из HTML)
 window.registerUser = registerUser;
 window.loginUser = loginUser;
 window.sendMessage = sendMessage;
 window.logoutUser = logoutUser;
+window.loadNicknameAndEnterChat = loadNicknameAndEnterChat; // Для chat.html и login.html
