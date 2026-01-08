@@ -7,7 +7,7 @@ const firebaseConfig = {
   projectId: "my-chat-5d859",
   storageBucket: "my-chat-5d859.firebasestorage.app",
   messagingSenderId: "11785440548",
-  appId: "1:11785440548:web:932bfcd2c1756b3741b7b1"
+  appId: "1:11785440548:web:51a6df3586bb0af641b7b1"
 };
 
 // Инициализация Firebase, Firestore и Auth
