@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация | chat.roxera.xyz</title>
+    <title>Регистрация в Чате</title>
     <link rel="stylesheet" href="style.css"> 
 </head>
 <body class="centered-page">
     <div id="register-form" class="auth-card">
-        <h2>Регистрация нового пользователя</h2>
+        <h2>Регистрация</h2>
         <input type="email" id="email-input" placeholder="Email (Логин)">
-        <input type="password" id="password-input" placeholder="Пароль">
+        <input type="password" id="password-input" placeholder="Пароль (от 6 символов)">
         <input type="text" id="username-input" placeholder="Имя пользователя (Ник, закрепляется!)">
         
         <button onclick="registerUser()">Зарегистрировать</button>
@@ -24,5 +24,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="chat.js"></script>
+    <script>
+        window.registerUser = registerUser;
+    </script>
 </body>
 </html>
