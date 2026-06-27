@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROXERA Advanced Cyber Terminal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .terminal-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+        }
+
+        pre #terminal {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            line-height: 1.0;
+            letter-spacing: 0px;
+            white-space: pre;
+            background-color: #000000;
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+            transform-origin: center;
+            text-shadow: 0 0 5px rgba(0, 162, 255, 0.4); 
+        }
+    </style>
+</head>
+<body>
+
+<div class="terminal-wrapper">
+    <pre id="terminal"></pre>
+</div>
+
+<script>
+    const termElement = document.getElementById('terminal');
+
+    // Наш базовый ASCII-текст
+    const rawText = [
+        "      ██████╗   ██████╗  ██╗  ██╗ ███████╗ ██████╗   █████╗ ",
+        "     ██╔══██╗ ██╔═══██╗ ╚██╗██╔╝ ██╔════╝ ██╔══██╗ ██╔══██╗",
+        "    ██████╔╝ ██║   ██║  ╚███╔╝  █████╗   ██████╔╝ ███████║",
+        "   ██╔══██╗ ██║   ██║  ██╔██╗  ██╔══╝   ██╔══██╗ ██╔══██║",
+        "  ██║  ██║ ╚██████╔╝ ██╔╝╚██╗ ███████╗ ██║  ██║ ██║  ██║",
+        " ╚═╝  ╚═╝  ╚═════╝  ╚═╝  ╚═╝ ╚══════╝ ╚═╝  ╚═╝ ╚═╝  ╚═╝"
+    ];
+
+    const TEXT_W = Math.max(...rawText.map(r => r.length));
+    const TEXT_ROXERA = rawText.map(r => r.padEnd(TEXT_W, ' '));
+
+    const GRID_W = 80;
+    const GRID_H = 40;
+
+    const TEXT_OFFSET_X = Math.floor((GRID_W - TEXT_W) / 2);
+    const TEXT_OFFSET_Y = Math.floor((GRID_H - TEXT_ROXERA.length) / 2);
+
+    const GRADIENT = ['#001ff5', '#005eff', '#0084ff', '#00a2ff', '#00c8ff', '#00e1ff', '#00f5ff', '#00e1ff', '#00c8ff', '#00a2ff', '#0084ff', '#005eff'];
+    const GLITCH_CHARS = ["0", "1", "█", "▄", "▀", "░", "▒", "▓", "$", "#", "@", "%", "&", "*", "X"];
+
+    let frame = 0;
+    let stateIdx = 0;
+    let stateFrame = 0;
+
+    // Стейт-машина: 4 статики и 4 абсолютно разных динамических перехода
+    const states = [
+        { name: "STATIC_TEXT",     duration: 60 },
+        { name: "GLITCH_WIPE",      duration: 50 }, // Из Текста в Лого (Глитч шторка)
+        { name: "STATIC_LOGO",     duration: 60 },
+        { name: "LASER_SCAN",      duration: 45 }, // Из Лого в Текст (Сканирование линией)
+        { name: "STATIC_TEXT_2",   duration: 60 },
+        { name: "MATRIX_CASCADE",  duration: 65 }, // Из Текста в Лого (Стекающие капли)
+        { name: "STATIC_LOGO_2",   duration: 60 },
+        { name: "NOISE_CRASH",     duration: 35 }  // Из Лого в Текст (Разрушение сигнала)
+    ];
+
+    // Генератор базовой ячейки ТЕКСТА
+    function getTextCell(lx, ly) {
+        if (ly >= TEXT_OFFSET_Y && ly < TEXT_OFFSET_Y + TEXT_ROXERA.length &&
+            lx >= TEXT_OFFSET_X && lx < TEXT_OFFSET_X + TEXT_W) {
+            
+            let textY = ly - TEXT_OFFSET_Y;
+            let textX = lx - TEXT_OFFSET_X;
+            let char = TEXT_ROXERA[textY][textX];
+            
+            if (char !== " ") {
+                let colorIdx = (textX + frame) % GRADIENT.length;
+                return `<span style="color:${GRADIENT[colorIdx]}">${char}</span>`;
+            }
+        }
+        return " ";
+    }
+
+    // Генератор базовой ячейки ЛОГОТИПА
+    function getLogoCell(lx, ly) {
+        const cx = 40, cy = 40; 
+        function getPixelColor(x, y) {
+            let dx = x - cx;
+            let dy = y - cy;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            
+            if (dist <= 30) {
+                let wavePhase = frame * 0.12;
+                let freq = 0.09; 
+                let waveY = cy + 9 * Math.sin(dx * freq - wavePhase);
+                
+                if (Math.abs(y - waveY) < 4.5) return '#ffffff'; // Жирный белый гребень
+                return (y < waveY) ? '#00c8ff' : '#0033aa';     
+            }
+            return null; 
+        }
+
+        let cTop = getPixelColor(lx, ly * 2);
+        let cBottom = getPixelColor(lx, ly * 2 + 1);
+        
+        if (!cTop && !cBottom) return " ";
+        if (cTop === cBottom) return `<span style="color:${cTop}">█</span>`;
+        if (cTop && !cBottom) return `<span style="color:${cTop}">▀</span>`;
+        if (!cTop && cBottom) return `<span style="color:${cBottom}">▄</span>`;
+        return `<span style="color:${cBottom};background-color:${cTop}">▄</span>`;
+    }
+
+    // Рендеринг случайного глитч-пикселя
+    function getRandomGlitch() {
+        let char = GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+        let color = GRADIENT[Math.floor(Math.random() * GRADIENT.length)];
+        return `<span style="color:${color};text-shadow: 0 0 8px #fff;">${char}</span>`;
+    }
+
+    function render() {
+        const state = states[stateIdx];
+        let htmlOutput = "";
+        let progress = stateFrame / state.duration;
+
+        for (let ly = 0; ly < GRID_H; ly++) {
+            for (let lx = 0; lx < GRID_W; lx++) {
+                
+                switch (state.name) {
+                    case "STATIC_TEXT":
+                    case "STATIC_TEXT_2":
+                        htmlOutput += getTextCell(lx, ly);
+                        break;
+
+                    case "STATIC_LOGO":
+                    case "STATIC_LOGO_2":
+                        htmlOutput += getLogoCell(lx, ly);
+                        break;
+
+                    case "GLITCH_WIPE": {
+                        // Эффект горизонтальной ломаной волны слева направо
+                        let waveX = progress * (GRID_W + 15) - 7;
+                        // Добавляем шум к координате границы для эффекта рваного края
+                        let edgeShift = Math.sin(ly * 0.5 + frame) * 3;
+                        let currentBoundary = waveX + edgeShift;
+
+                        if (lx < currentBoundary - 4) {
+                            htmlOutput += getLogoCell(lx, ly);
+                        } else if (lx > currentBoundary + 4) {
+                            // Небольшой глитч-сдвиг строк для еще не превращенного текста
+                            let shiftedLx = lx + (Math.random() > 0.92 ? Math.floor(Math.sin(ly)*4) : 0);
+                            htmlOutput += getTextCell(shiftedLx, ly);
+                        } else {
+                            // Зона экстремального цифрового шума на стыке двух анимаций
+                            htmlOutput += getRandomGlitch();
+                        }
+                        break;
+                    }
+
+                    case "LASER_SCAN": {
+                        // Эффект вертикального сканирования сверху вниз
+                        let scanY = progress * GRID_H;
+                        if (ly < scanY - 0.5) {
+                            htmlOutput += getTextCell(lx, ly);
+                        } else if (Math.abs(ly - scanY) <= 1) {
+                            // Сама линия лазера — сверхъяркий пиксель
+                            htmlOutput += `<span style="color:#ffffff; background-color:#00a2ff; text-shadow:0 0 12px #fff;">█</span>`;
+                        } else {
+                            htmlOutput += getLogoCell(lx, ly);
+                        }
+                        break;
+                    }
+
+                    case "MATRIX_CASCADE": {
+                        // Каскадное стекание «капель» сверху вниз
+                        // Псевдослучайная задержка для каждого столбца матрицы
+                        let columnDelay = (Math.sin(lx * 13.7) * 0.5 + 0.5) * 0.4; // 0.0 до 0.4
+                        let colProgress = (progress - columnDelay) / (1.0 - columnDelay);
+                        let dropY = colProgress * (GRID_H + 5);
+
+                        if (ly < dropY - 1) {
+                            htmlOutput += getLogoCell(lx, ly);
+                        } else if (Math.abs(ly - dropY) <= 1 && ly < GRID_H) {
+                            // Лидирующий символ капли Матрицы
+                            htmlOutput += `<span style="color:#00f5ff; text-shadow:0 0 10px #00f5ff;">█</span>`;
+                        } else {
+                            htmlOutput += getTextCell(lx, ly);
+                        }
+                        break;
+                    }
+
+                    case "NOISE_CRASH": {
+                        // Разрушение на блочный цифровой шум
+                        let blockX = Math.floor(lx / 4);
+                        let blockY = Math.floor(ly / 2);
+                        // Вычисляем случайное значение для блока
+                        let blockNoise = Math.sin(blockX * 41.2 + blockY * 73.1 + frame * 0.05) * 0.5 + 0.5;
+                        
+                        // Плавное изменение баланса от Лого к Тексту через тотальный шум
+                        if (blockNoise < progress * 0.7) {
+                            htmlOutput += getTextCell(lx, ly);
+                        } else if (blockNoise > progress + 0.2) {
+                            htmlOutput += getLogoCell(lx, ly);
+                        } else {
+                            // Блоки, превратившиеся в чистую цифровую кашу
+                            htmlOutput += getRandomGlitch();
+                        }
+                        break;
+                    }
+                }
+            }
+            htmlOutput += "\n";
+        }
+
+        termElement.innerHTML = htmlOutput;
+
+        // Логика счетчиков кадров
+        frame++;
+        stateFrame++;
+        if (stateFrame >= state.duration) {
+            stateFrame = 0;
+            stateIdx = (stateIdx + 1) % states.length;
+        }
+    }
+
+    // Масштабирование под любые экраны смартфонов
+    function autoScale() {
+        const wrapper = termElement.parentElement.parentElement;
+        const baseWidth = termElement.offsetWidth || 700; 
+        const baseHeight = termElement.offsetHeight || 420;
+
+        const scaleX = wrapper.clientWidth / (baseWidth + 20);
+        const scaleY = wrapper.clientHeight / (baseHeight + 20);
+        const currentScale = Math.min(scaleX, scaleY, 1); 
+
+        termElement.style.transform = `scale(${currentScale})`;
+    }
+
+    setInterval(render, 33); // Стабильные ~30 кадров в секунду
+    window.addEventListener('resize', autoScale);
+    setTimeout(autoScale, 60); 
+</script>
+</body>
+</html>
