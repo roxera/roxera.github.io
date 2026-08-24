@@ -3,55 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>roxera.net</title>
+    <title>ROXERA // roxera.net</title>
     <style>
+        :root {
+            --primary-glow: rgba(0, 195, 255, 0.4);
+            --crt-scanline: rgba(18, 16, 16, 0);
+            --crt-scanline-dark: rgba(0, 0, 0, 0.4);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
         }
+
         body, html {
             width: 100%;
             height: 100%;
-            background-color: #000000;
+            background-color: #03070d;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-        
-        .terminal-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            padding: 10px;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
         }
 
-        pre #terminal {
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;
+        /* Фоновая сетка и виньетка */
+        .bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(to right, rgba(0, 162, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 162, 255, 0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+
+        .vignette {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.85) 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Эффект сканлайнов ЭЛТ-монитора */
+        .scanlines {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                var(--crt-scanline) 50%, 
+                var(--crt-scanline-dark) 51%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            opacity: 0.7;
+            z-index: 3;
+        }
+
+        .terminal-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Верхний и нижний статус-бары */
+        .system-meta {
+            color: #0084ff;
+            font-size: 13px;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            text-shadow: 0 0 8px rgba(0, 132, 255, 0.6);
+            display: flex;
+            gap: 20px;
+            text-transform: uppercase;
+        }
+
+        .system-meta span {
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        #terminal {
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            font-weight: 700;
             line-height: 1.0;
-            letter-spacing: 0px;
+            letter-spacing: 0;
             white-space: pre;
-            background-color: #000000;
+            background-color: transparent;
             margin: 0;
             padding: 0;
             display: inline-block;
-            transform-origin: center;
-            text-shadow: 0 0 5px rgba(0, 162, 255, 0.4); 
+            transform-origin: center center;
+            text-shadow: 0 0 6px var(--primary-glow);
+            cursor: pointer;
+            transition: transform 0.05s ease-out;
+        }
+
+        .footer-links {
+            margin-top: 18px;
+            display: flex;
+            gap: 24px;
+            font-size: 13px;
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+
+        .footer-links a {
+            color: #00c8ff;
+            text-decoration: none;
+            opacity: 0.6;
+            transition: all 0.2s ease;
+            position: relative;
+            padding: 4px 8px;
+            border: 1px solid transparent;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+            border-color: rgba(0, 200, 255, 0.4);
+            background: rgba(0, 200, 255, 0.08);
+            text-shadow: 0 0 8px #00e1ff;
+            box-shadow: 0 0 10px rgba(0, 200, 255, 0.2);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
         }
     </style>
 </head>
 <body>
 
-<div class="terminal-wrapper">
+<div class="bg-grid"></div>
+<div class="vignette"></div>
+<div class="scanlines"></div>
+
+<div class="terminal-container">
+    <div class="system-meta">
+        <div>CORE: <span>ONLINE</span></div>
+        <div>// STATUS: <span>FUCK YOURSELF</span> //</div>
+        <div id="ping-display">PING: 24ms</div>
+    </div>
+
     <pre id="terminal"></pre>
+
+    <div class="footer-links">
+        <a href="https://tg.roxera.net" target="_blank">[ TELEGRAM ]</a>
+        <a href="https://github.com/roxera" target="_blank">[ GITHUB ]</a>
+        <a href="mailto:dulciloquium@roxera.net" target="_blank">[ CONTACT ]</a>
+    </div>
 </div>
 
 <script>
     const termElement = document.getElementById('terminal');
+    const pingElement = document.getElementById('ping-display');
 
     const rawText = [
         "      ██████╗   ██████╗  ██╗  ██╗ ███████╗ ██████╗   █████╗ ",
@@ -66,21 +178,22 @@
     const TEXT_ROXERA = rawText.map(r => r.padEnd(TEXT_W, ' '));
 
     const GRID_W = 80;
-    const GRID_H = 40;
+    const GRID_H = 38;
 
     const TEXT_OFFSET_X = Math.floor((GRID_W - TEXT_W) / 2);
     const TEXT_OFFSET_Y = Math.floor((GRID_H - TEXT_ROXERA.length) / 2);
 
     const GRADIENT = ['#001ff5', '#005eff', '#0084ff', '#00a2ff', '#00c8ff', '#00e1ff', '#00f5ff', '#00e1ff', '#00c8ff', '#00a2ff', '#0084ff', '#005eff'];
-    const GLITCH_CHARS = ["0", "1", "█", "▄", "▀", "░", "▒", "▓", "$", "#", "@", "%", "&", "*", "X"];
+    const GLITCH_CHARS = ["0", "1", "█", "▄", "▀", "░", "▒", "▓", "$", "#", "@", "%", "&", "*", "X", "¥", "§"];
 
     let frame = 0;
     let stateIdx = 0;
     let stateFrame = 0;
+    let forceGlitch = 0;
 
     const states = [
         { name: "STATIC_TEXT",     duration: 60 },
-        { name: "GLITCH_WIPE",      duration: 50 },
+        { name: "GLITCH_WIPE",     duration: 50 },
         { name: "STATIC_LOGO",     duration: 60 },
         { name: "LASER_SCAN",      duration: 45 },
         { name: "STATIC_TEXT_2",   duration: 60 },
@@ -106,19 +219,19 @@
     }
 
     function getLogoCell(lx, ly) {
-        const cx = 40, cy = 40; 
+        const cx = 40, cy = 38; 
         function getPixelColor(x, y) {
             let dx = x - cx;
             let dy = y - cy;
             let dist = Math.sqrt(dx*dx + dy*dy);
             
-            if (dist <= 30) {
-                let wavePhase = frame * 0.12;
-                let freq = 0.09; 
-                let waveY = cy + 9 * Math.sin(dx * freq - wavePhase);
+            if (dist <= 28) {
+                let wavePhase = frame * 0.14;
+                let freq = 0.1; 
+                let waveY = cy + 8 * Math.sin(dx * freq - wavePhase);
                 
                 if (Math.abs(y - waveY) < 4.5) return '#ffffff';
-                return (y < waveY) ? '#00c8ff' : '#0033aa';     
+                return (y < waveY) ? '#00c8ff' : '#00268a';     
             }
             return null; 
         }
@@ -136,7 +249,7 @@
     function getRandomGlitch() {
         let char = GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
         let color = GRADIENT[Math.floor(Math.random() * GRADIENT.length)];
-        return `<span style="color:${color};text-shadow: 0 0 8px #fff;">${char}</span>`;
+        return `<span style="color:${color};text-shadow: 0 0 10px #ffffff;">${char}</span>`;
     }
 
     function render() {
@@ -147,6 +260,11 @@
         for (let ly = 0; ly < GRID_H; ly++) {
             for (let lx = 0; lx < GRID_W; lx++) {
                 
+                if (forceGlitch > 0 && Math.random() < 0.2) {
+                    htmlOutput += getRandomGlitch();
+                    continue;
+                }
+
                 switch (state.name) {
                     case "STATIC_TEXT":
                     case "STATIC_TEXT_2":
@@ -166,7 +284,7 @@
                         if (lx < currentBoundary - 4) {
                             htmlOutput += getLogoCell(lx, ly);
                         } else if (lx > currentBoundary + 4) {
-                            let shiftedLx = lx + (Math.random() > 0.92 ? Math.floor(Math.sin(ly)*4) : 0);
+                            let shiftedLx = lx + (Math.random() > 0.94 ? Math.floor(Math.sin(ly)*4) : 0);
                             htmlOutput += getTextCell(shiftedLx, ly);
                         } else {
                             htmlOutput += getRandomGlitch();
@@ -179,7 +297,7 @@
                         if (ly < scanY - 0.5) {
                             htmlOutput += getTextCell(lx, ly);
                         } else if (Math.abs(ly - scanY) <= 1) {
-                            htmlOutput += `<span style="color:#ffffff; background-color:#00a2ff; text-shadow:0 0 12px #fff;">█</span>`;
+                            htmlOutput += `<span style="color:#ffffff; background-color:#00a2ff; text-shadow:0 0 14px #fff;">█</span>`;
                         } else {
                             htmlOutput += getLogoCell(lx, ly);
                         }
@@ -194,7 +312,7 @@
                         if (ly < dropY - 1) {
                             htmlOutput += getLogoCell(lx, ly);
                         } else if (Math.abs(ly - dropY) <= 1 && ly < GRID_H) {
-                            htmlOutput += `<span style="color:#00f5ff; text-shadow:0 0 10px #00f5ff;">█</span>`;
+                            htmlOutput += `<span style="color:#00f5ff; text-shadow:0 0 12px #00f5ff;">█</span>`;
                         } else {
                             htmlOutput += getTextCell(lx, ly);
                         }
@@ -222,29 +340,59 @@
 
         termElement.innerHTML = htmlOutput;
 
+        if (forceGlitch > 0) forceGlitch--;
+
         frame++;
         stateFrame++;
         if (stateFrame >= state.duration) {
             stateFrame = 0;
             stateIdx = (stateIdx + 1) % states.length;
         }
+
+        // Рандомизация значения пинга для живости
+        if (frame % 60 === 0) {
+            pingElement.innerText = `PING: ${Math.floor(18 + Math.random() * 12)}ms`;
+        }
+    }
+
+    // Оптимизированный игровой цикл на requestAnimationFrame
+    let lastTick = 0;
+    const FPS_INTERVAL = 1000 / 30; // 30 кадров в секунду для ретро-стиля
+
+    function mainLoop(timestamp) {
+        requestAnimationFrame(mainLoop);
+        const elapsed = timestamp - lastTick;
+        if (elapsed > FPS_INTERVAL) {
+            lastTick = timestamp - (elapsed % FPS_INTERVAL);
+            render();
+        }
     }
 
     function autoScale() {
-        const wrapper = termElement.parentElement.parentElement;
-        const baseWidth = termElement.offsetWidth || 700; 
-        const baseHeight = termElement.offsetHeight || 420;
+        const padding = 40;
+        const availableW = window.innerWidth - padding;
+        const availableH = window.innerHeight - 140; // Место под шапку и футер
 
-        const scaleX = wrapper.clientWidth / (baseWidth + 20);
-        const scaleY = wrapper.clientHeight / (baseHeight + 20);
-        const currentScale = Math.min(scaleX, scaleY, 1); 
+        const baseW = termElement.scrollWidth || 700;
+        const baseH = termElement.scrollHeight || 420;
 
-        termElement.style.transform = `scale(${currentScale})`;
+        const scale = Math.min(availableW / baseW, availableH / baseH, 1.2);
+        termElement.style.transform = `scale(${Math.max(scale, 0.3)})`;
     }
 
-    setInterval(render, 33);
+    // Интерактив: взрыв глитча по клику
+    window.addEventListener('pointerdown', () => {
+        forceGlitch = 12;
+    });
+
     window.addEventListener('resize', autoScale);
-    setTimeout(autoScale, 60); 
+    
+    // Запуск
+    requestAnimationFrame((t) => {
+        autoScale();
+        mainLoop(t);
+        setTimeout(autoScale, 50);
+    });
 </script>
 </body>
 </html>
